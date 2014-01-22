@@ -1,44 +1,62 @@
+# -*- coding: utf-8 -*-
 import requests
 from bs4 import BeautifulSoup
 
 
+
+
 # Fill in your details here to be posted to the login form.
-payload = {
-    'j_username': '2911212', 'j_password': 'senha'
-}
+
+payload = {'j_username': '2911212', 'j_password': 'senha'}
 
 
-
-def gettabelausuario(html):
+def getUsuario(html):
     soup = BeautifulSoup(html)
     tag='<br>'
     ftag='</br>'
     for linha in soup.find(id="usuarioTable").find_all('td'):
-        print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])
-        
+        nome_saldo = str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)]
+        if nome_saldo.find('R$')!=-1:
+            print (nome_saldo)
+        else:
+            print (nome_saldo)
+            
 #nao testado
-def getcompras(html):
+def getCompra(html):
     soup = BeautifulSoup(html)
     tag='<td>'
     ftag='</td>'
-    for linha in soup.find(id="comprasTable").find_all('td'):
-        print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])
+    data=''
+    try:
+        for linha in soup.find(id="comprasTable").find_all('td'):
+            dado = str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)]
+            if dado.count('/')>1 and dado.find(':')!=-1: 
+                data=dado
+            if dado.find('R$')!=-1:
+                if data!='':
+                    print (data+dado[dado.find('R$')+2:])#limpando coldspan do total
+                    data=''
+                else:
+                    print ('Total '+dado[dado.find('R$')+2:])#limpando coldspan do total
+    except AttributeError:
+        print 'Nenhuma compra nos últimos dias'
+
     
-def getrefeicoes(html):
+def getRefeicao(html):
     soup = BeautifulSoup(html)
     tag='<td>'
     ftag='</td>'
     for linha in soup.find(id="refeicoesTable").find_all('td'):
         print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])
     
-def getagendamento(html):
+def getAgendamento(html):
     soup = BeautifulSoup(html)
     tag='<td>'
     ftag='</td>'
     for linha in soup.find(id="agendamentosTable").find_all('td'):
         print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])    
         
-def getunidade(html):
+def getUnidade(html):
     soup = BeautifulSoup(html)
     tag='<td>'
     ftag='</td>'
@@ -46,7 +64,7 @@ def getunidade(html):
         print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])    
         
         
-def getbeneficio(html):
+def getBeneficio(html):
     soup = BeautifulSoup(html)
     tag='<td colspan="3">'
     ftag='</td>'
@@ -65,6 +83,6 @@ with requests.Session() as s:
     r = s.get('http://portal.ufsm.br/ru/usuario/situacao.html')
     #print r.text
     
-    getbeneficio(r.text)
+    getCompra(r.text)
     
 

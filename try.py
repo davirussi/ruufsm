@@ -1,9 +1,22 @@
 import requests
+from bs4 import BeautifulSoup
+
 
 # Fill in your details here to be posted to the login form.
 payload = {
     'j_username': '2911593', 'j_password': 'senha'
 }
+
+
+
+def gettabelausuario(html):
+    soup = BeautifulSoup(html)
+    tag='<br>'
+    ftag='</br>'
+    for linha in soup.find(id="usuarioTable").find_all('td'):
+        print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])
+    
+
 
 # Use 'with' to ensure the session context is closed after use.
 with requests.Session() as s:
@@ -13,4 +26,8 @@ with requests.Session() as s:
 
     # An authorised request.
     r = s.get('http://portal.ufsm.br/ru/usuario/situacao.html')
-    print r.text
+    #print r.text
+    
+    gettabelausuario(r.text)
+    
+

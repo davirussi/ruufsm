@@ -60,17 +60,17 @@ class RuUfsm:
             #print r.text
         if self.online:
             print('\nUSUARIO SALDO')
-            self.__getUsuario()
+            #self.__getUsuario()
             print('\nULTIMAS COMPRAS')
-            self.__getCompra()
+            #self.__getCompra()
             print('\nULTIMAS REFEICOES')
             self.__getRefeicao()
             print('\nULTIMOS AGENDAMENTOS')
-            self.__getAgendamento()
+            #self.__getAgendamento()
             print('\nRUs')
-            self.__getUnidade()
+            #self.__getUnidade()
             print('\nBENEFICIOS')
-            self.__getBeneficio()
+            #sself.__getBeneficio()
             
     def __getUsuario(self):
         tag='<br>'
@@ -106,14 +106,15 @@ class RuUfsm:
     def __getRefeicao(self):
         tag='<td>'
         ftag='</td>'
-        listatipo=['Almoço','Janta','Café','Distribuição']
+        #listatipo=['Almoço','Janta','Café','Distribuição']
+        listatipo=['Almoço','Janta','Café']
         listaru=['RU - Refeitório 2','RU - Campus']
         
         blinha=True #caso encontre o total para de procurar por todas as variaveis
         data=''
         tipo=''
         valor=''
-        ru=''
+        ru=''    
         
         try:
             for linha in self.soup.find(id="refeicoesTable").find_all('td'):
@@ -130,15 +131,15 @@ class RuUfsm:
                     elif dado in listaru:
                         ru=dado
                         print (data+tipo+valor+ru)
-                        refeicao.append((data,tipo,valor,ru))
                 else:
                     if dado.find('R$')!=-1:
-                        valor=dado[dado.find('R$')+2:]
-                        print ('Total'+valor)
-                        self.refeicao.append(('Total',valor))
-                        break
+                        print ('Total'+dado[dado.find('R$')+2:])
+                        break  
         except:
             print ('Nenhuma refeição realizada nos últimos 10 dias')
+ 
+
+ 
  
     #nao implementado        
     def __getAgendamento(self):

@@ -21,33 +21,60 @@ def getUsuario(html):
         else:
             print (nome_saldo)
             
-#nao testado
 def getCompra(html):
     soup = BeautifulSoup(html)
     tag='<td>'
     ftag='</td>'
     data=''
-    try:
-        for linha in soup.find(id="comprasTable").find_all('td'):
-            dado = str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)]
-            if dado.count('/')>1 and dado.find(':')!=-1: 
-                data=dado
-            if dado.find('R$')!=-1:
-                if data!='':
-                    print (data+dado[dado.find('R$')+2:])#limpando coldspan do total
-                    data=''
-                else:
-                    print ('Total '+dado[dado.find('R$')+2:])#limpando coldspan do total
-    except AttributeError:
-        print 'Nenhuma compra nos últimos dias'
+
+    for linha in soup.find(id="comprasTable").find_all('td'):
+        dado = str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)]
+        if dado.count('/')>1 and dado.find(':')!=-1: 
+            data=dado
+        if dado.find('R$')!=-1:
+            if data!='':
+                print (data+dado[dado.find('R$')+2:])#limpando coldspan do total
+                data=''
+            else:
+                print ('Total '+dado[dado.find('R$')+2:])#limpando coldspan do total
+    
 
     
 def getRefeicao(html):
     soup = BeautifulSoup(html)
     tag='<td>'
     ftag='</td>'
+    listatipo=['Almoço','Janta','Café']
+    listaru=['RU - Refeitório 2','RU - Campus']
+    
+    
+    blinha=True #caso encontre o total para de procurar por local
+    data=''
+    tipo=''
+    valor=''
+    ru=''
+
+    #try
     for linha in soup.find(id="refeicoesTable").find_all('td'):
-        print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])
+        dado = str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)]         
+        if dado.find('Total')!=-1:
+            blinha=False
+        if blinha:
+            if dado.count('/')>1 and dado.find(':')!=-1: 
+                data=dado
+            elif dado.find('R$')!=-1:
+                valor=dado
+            elif dado in listatipo:
+                tipo=dado
+            elif dado in listaru:
+                ru=dado
+                print (data+tipo+valor+ru)
+        else:
+            if dado.find('R$')!=-1:
+                print ('Total'+dado[dado.find('R$')+2:])
+                break
+            
+
     
 def getAgendamento(html):
     soup = BeautifulSoup(html)
@@ -60,16 +87,33 @@ def getUnidade(html):
     soup = BeautifulSoup(html)
     tag='<td>'
     ftag='</td>'
+    listatipo=['Almoço','Janta','Café']
+    listaru=['RU - Refeitório 2','RU - Campus']
+    
+    tipo=''
+    ru=''
+    
     for linha  in soup.find(id="autorizacoesUnidadeTable").find_all('td'):
-        print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])    
-        
+        dado = str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)]
+        if dado in listaru:
+            ru=dado
+        else:
+            for t in listatipo:
+                if dado.count(t)>0:
+                    tipo=t
+                    print (ru+tipo)
         
 def getBeneficio(html):
     soup = BeautifulSoup(html)
     tag='<td colspan="3">'
     ftag='</td>'
+    lbeneficio=['Sem benefício']
+    
     for linha  in soup.find(id="beneficioTable").find_all('td'):
-        print (str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)])     
+        dado=str(linha)[str(linha).find(tag)+len(tag):str(linha).find(ftag)]
+        for b in lbeneficio:
+            if dado.count(b)>0:
+                print b
         
 
 
@@ -82,7 +126,9 @@ with requests.Session() as s:
     # An authorised request.
     r = s.get('http://portal.ufsm.br/ru/usuario/situacao.html')
     #print r.text
+  
+    try:  
+        getBeneficio(r.text)
     
-    getCompra(r.text)
-    
-
+    except AttributeError:
+        print 'Nenhuma refeicao nos últimos dias'
